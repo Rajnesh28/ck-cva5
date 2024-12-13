@@ -41,7 +41,11 @@ module dcache_inv
         input logic uncacheable,
         memory_sub_unit_interface.responder ls,
         input logic load_peek, //If the next request may be a load
-        input logic[31:0] load_addr_peek //The address in that case
+        input logic[31:0] load_addr_peek, //The address in that case
+        
+        output logic abacus_dcache_request, 
+        output logic abacus_dcache_hit,
+        output logic abacus_dcache_line_fill_in_progress
     );
 
     localparam derived_cache_config_t SCONFIG = get_derived_cache_params(CONFIG, CONFIG.DCACHE, CONFIG.DCACHE_ADDR);
@@ -553,6 +557,10 @@ module dcache_inv
         .sel(db_hit_entry)
     );
 
+    // ABACUS nets
+    assign abacus_dcache_request = stage0_advance_r;
+    assign abacus_dcache_hit = hit_r;
+    assign abacus_dcache_line_fill_in_progress = stage1_valid && ~stage1_done;
     ////////////////////////////////////////////////////
     //Assertions
     dcache_request_when_not_ready_assertion:

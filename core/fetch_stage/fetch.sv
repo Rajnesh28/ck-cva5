@@ -57,7 +57,11 @@ module fetch
         local_memory_interface.master instruction_bram,
         wishbone_interface.master iwishbone,
         input logic icache_on,
-        mem_interface.ro_master mem
+        mem_interface.ro_master mem,
+
+        output logic abacus_icache_request,
+        output logic abacus_icache_miss,
+        output logic abacus_icache_line_fill_in_progress
     );
 
     localparam NUM_SUB_UNITS = int'(CONFIG.INCLUDE_ILOCAL_MEM) + int'(CONFIG.INCLUDE_ICACHE) + int'(CONFIG.INCLUDE_IBUS);
@@ -306,7 +310,10 @@ module fetch
             .ifence (ifence_start),
             .icache_on (icache_on),
             .mem (mem),
-            .fetch_sub (sub_unit[ICACHE_ID])
+            .fetch_sub (sub_unit[ICACHE_ID]),
+            .abacus_icache_request(abacus_icache_request),
+            .abacus_icache_miss(abacus_icache_miss),
+            .abacus_icache_line_fill_in_progress(abacus_icache_line_fill_in_progress)
         );
     end endgenerate
 

@@ -37,7 +37,11 @@ module icache
         input logic icache_on,
         mem_interface.ro_master mem,
 
-        memory_sub_unit_interface.responder fetch_sub
+        memory_sub_unit_interface.responder fetch_sub,
+
+        output logic abacus_icache_request,
+        output logic abacus_icache_miss,
+        output logic abacus_icache_line_fill_in_progress
     );
 
     localparam derived_cache_config_t SCONFIG = get_derived_cache_params(CONFIG, CONFIG.ICACHE, CONFIG.ICACHE_ADDR);
@@ -262,6 +266,11 @@ module icache
     );
     assign fetch_sub.data_out = output_array[output_sel];
     assign fetch_sub.data_valid = miss_data_valid | tag_hit;
+
+    // ABACUS nets
+    assign abacus_icache_request = new_request;
+    assign abacus_icache_miss = linefill_in_progress; // Used to detect rising edge to infer when a cache miss occurs
+    assign abacus_icache_line_fill_in_progress = linefill_in_progress; // Used to count how long the line fill is taking for latency calculations
 
     ////////////////////////////////////////////////////
     //End of Implementation

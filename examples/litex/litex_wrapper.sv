@@ -50,7 +50,19 @@ module litex_wrapper
         output logic idbus_bte,
         input logic [31:0] idbus_dat_r,
         input logic idbus_ack,
-        input logic idbus_err
+        input logic idbus_err,
+
+        //ABACUS
+        output logic [31:0] abacus_instruction,
+        output logic abacus_instruction_issued,
+        
+        output logic abacus_icache_request,
+        output logic abacus_icache_miss,
+        output logic abacus_icache_line_fill_in_progress,
+
+        output logic abacus_dcache_request,
+        output logic abacus_dcache_hit,
+        output logic abacus_dcache_line_fill_in_progress
     );
 
     localparam wb_group_config_t STANDARD_WB_GROUP_CONFIG = '{
@@ -130,7 +142,7 @@ module litex_wrapper
                 LINES : 512,
                 LINE_W : 8,
                 WAYS : 2,
-                USE_EXTERNAL_INVALIDATIONS : 0,
+                USE_EXTERNAL_INVALIDATIONS : 1,
                 USE_NON_CACHEABLE : 0,
                 NON_CACHEABLE : '{
                     L: NON_CACHABLE_L,
@@ -212,6 +224,18 @@ module litex_wrapper
             .mtime(mtime),
             .s_interrupt(s_interrupt[i]),
             .m_interrupt(m_interrupt[i]),
+
+            //ABACUS
+            .abacus_instruction_issued(abacus_instruction_issued),
+            .abacus_instruction(abacus_instruction),
+            
+            .abacus_icache_request(abacus_icache_request),
+            .abacus_icache_miss(abacus_icache_miss),
+            .abacus_icache_line_fill_in_progress(abacus_icache_line_fill_in_progress),
+
+            .abacus_dcache_request(abacus_dcache_request),
+            .abacus_dcache_hit(abacus_dcache_hit),
+            .abacus_dcache_line_fill_in_progress(abacus_dcache_line_fill_in_progress),
         .*);
     end endgenerate
 

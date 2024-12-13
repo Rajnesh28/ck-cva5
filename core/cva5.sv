@@ -50,9 +50,24 @@ module cva5
 
         input logic [63:0] mtime,
         input interrupt_t s_interrupt,
-        input interrupt_t m_interrupt
+        input interrupt_t m_interrupt,
+
+        //ABACUS
+        output logic abacus_instruction_issued,
+        output logic [31:0] abacus_instruction,
+        
+        output logic abacus_icache_request,
+        output logic abacus_icache_miss,
+        output logic abacus_icache_line_fill_in_progress,
+        
+        output logic abacus_dcache_request,
+        output logic abacus_dcache_hit,
+        output logic abacus_dcache_line_fill_in_progress
     );
 
+    assign abacus_instruction_issued = instruction_issued;
+    assign abacus_instruction = issue.instruction;
+    
     ////////////////////////////////////////////////////
     //Connecting Signals
     mem_interface dcache_mem();
@@ -263,7 +278,10 @@ module cva5
         .iwishbone (iwishbone),
         .icache_on ('1),
         .tlb (itlb),
-        .mem (icache_mem)
+        .mem (icache_mem),
+        .abacus_icache_request(abacus_icache_request),
+        .abacus_icache_miss(abacus_icache_miss),
+        .abacus_icache_line_fill_in_progress(abacus_icache_line_fill_in_progress)
     );
 
     branch_predictor #(.CONFIG(CONFIG))
@@ -463,7 +481,10 @@ module cva5
         .exception (exception[LS_EXCEPTION]),
         .load_store_status(load_store_status),
         .wb (unit_wb[LS_ID]),
-        .fp_wb (fp_unit_wb[0])
+        .fp_wb (fp_unit_wb[0]),
+        .abacus_dcache_request(abacus_dcache_request),
+        .abacus_dcache_hit(abacus_dcache_hit),
+        .abacus_dcache_line_fill_in_progress(abacus_dcache_line_fill_in_progress)
     );
 
     dtlb #(.WAYS(CONFIG.DTLB.WAYS), .DEPTH(CONFIG.DTLB.DEPTH))

@@ -88,7 +88,11 @@ module load_store_unit
         exception_interface.unit exception,
         output load_store_status_t load_store_status,
         unit_writeback_interface.unit wb,
-        unit_writeback_interface.unit fp_wb
+        unit_writeback_interface.unit fp_wb,
+
+        output logic abacus_dcache_request,
+        output logic abacus_dcache_hit,
+        output logic abacus_dcache_line_fill_in_progress
     );
 
     localparam NUM_SUB_UNITS = int'(CONFIG.INCLUDE_DLOCAL_MEM) + int'(CONFIG.INCLUDE_PERIPHERAL_BUS) + int'(CONFIG.INCLUDE_DCACHE);
@@ -686,6 +690,9 @@ module load_store_unit
                     .ls(sub_unit[DCACHE_ID]),
                     .load_peek(lsq.load_valid),
                     .load_addr_peek(lsq.load_data_out.addr),
+                    .abacus_dcache_request(abacus_dcache_request),
+                    .abacus_dcache_hit(abacus_dcache_hit),
+                    .abacus_dcache_line_fill_in_progress(abacus_dcache_line_fill_in_progress),
                 .*);
             end else begin : gen_small_dcache
                 dcache_noinv #(.CONFIG(CONFIG)) data_cache (
@@ -699,6 +706,8 @@ module load_store_unit
                     .ls(sub_unit[DCACHE_ID]),
                     .load_peek(lsq.load_valid),
                     .load_addr_peek(lsq.load_data_out.addr),
+                    .abacus_dcache_request(abacus_dcache_request),
+                    .abacus_dcache_hit(abacus_dcache_hit),
                 .*);
             end
         end
