@@ -559,7 +559,7 @@ module dcache_inv
 
     // ABACUS nets
     assign abacus_dcache_request = stage0_advance_r;
-    assign abacus_dcache_hit = hit_r;
+    assign abacus_dcache_hit = stage0_advance_r & hit;
     assign abacus_dcache_line_fill_in_progress = stage1_valid && ~stage1_done;
     ////////////////////////////////////////////////////
     //Assertions
