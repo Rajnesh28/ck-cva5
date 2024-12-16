@@ -83,10 +83,19 @@ module decode_and_issue
         input gc_outputs_t gc,
         input logic [1:0] current_privilege,
 
-        exception_interface.unit exception
+        exception_interface.unit exception,
+
+        // ABACUS
+        output logic [MAX_NUM_UNITS-1:0] abacus_unit_needed_issue_stage,
+        output logic [REGFILE_READ_PORTS-1:0] abacus_operand_ready,
+        output logic abacus_issue_hold
+
     );
 
-
+    assign abacus_unit_needed_issue_stage = unit_needed_issue_stage;
+    assign abacus_operand_ready = operand_ready;
+    assign abacus_issue_hold = issue_hold;
+    
     common_instruction_t decode_instruction;//rs1_addr, rs2_addr, fn3, fn7, rd_addr, upper/lower opcode
 
     logic decode_uses_rs [REGFILE_READ_PORTS];

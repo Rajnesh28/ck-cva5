@@ -62,7 +62,19 @@ module litex_wrapper
 
         output logic abacus_dcache_request,
         output logic abacus_dcache_hit,
-        output logic abacus_dcache_line_fill_in_progress
+        output logic abacus_dcache_line_fill_in_progress,
+
+        output logic abacus_branch_misprediction,
+        output logic abacus_ras_misprediction,
+
+        //Issue stage stall determination
+        output logic abacus_issue_no_instruction_stat,
+        output logic abacus_issue_no_id_stat,
+        output logic abacus_issue_flush_stat,
+        output logic abacus_unit_busy_stat,
+        output logic abacus_issue_operands_not_ready_stat,
+        output logic abacus_issue_hold_stat,
+        output logic abacus_issue_multi_source_stat
     );
 
     localparam wb_group_config_t STANDARD_WB_GROUP_CONFIG = '{
@@ -236,6 +248,17 @@ module litex_wrapper
             .abacus_dcache_request(abacus_dcache_request),
             .abacus_dcache_hit(abacus_dcache_hit),
             .abacus_dcache_line_fill_in_progress(abacus_dcache_line_fill_in_progress),
+
+            .abacus_branch_misprediction(abacus_branch_misprediction),
+            .abacus_ras_misprediction(abacus_ras_misprediction),
+            
+            .abacus_issue_no_instruction_stat(abacus_issue_no_instruction_stat),
+            .abacus_issue_no_id_stat(abacus_issue_no_id_stat),
+            .abacus_issue_flush_stat(abacus_issue_flush_stat),
+            .abacus_unit_busy_stat(abacus_unit_busy_stat),
+            .abacus_issue_operands_not_ready_stat(abacus_issue_operands_not_ready_stat),
+            .abacus_issue_hold_stat(abacus_issue_hold_stat),
+            .abacus_issue_multi_source_stat(abacus_issue_multi_source_stat),
         .*);
     end endgenerate
 
