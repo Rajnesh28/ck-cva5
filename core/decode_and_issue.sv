@@ -348,6 +348,7 @@ module decode_and_issue
     assign exception.pc = issue.pc;
     assign exception.discard = 0;
 
+
     end endgenerate
     ////////////////////////////////////////////////////
     //End of Implementation

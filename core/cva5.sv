@@ -62,7 +62,10 @@ module cva5
         
         output logic abacus_dcache_request,
         output logic abacus_dcache_hit,
-        output logic abacus_dcache_line_fill_in_progress
+        output logic abacus_dcache_line_fill_in_progress,
+
+        output logic abacus_branch_misprediction,
+        output logic abacus_ras_misprediction
     );
 
     assign abacus_instruction_issued = instruction_issued;
@@ -419,7 +422,9 @@ module cva5
         .issue (unit_issue[BR_ID]),
         .br_results (br_results),
         .branch_flush (branch_flush),
-        .exception (exception[BR_EXCEPTION])
+        .exception (exception[BR_EXCEPTION]),
+        .abacus_branch_misprediction(abacus_branch_misprediction),
+        .abacus_ras_misprediction(abacus_ras_misprediction)
     );
 
 
