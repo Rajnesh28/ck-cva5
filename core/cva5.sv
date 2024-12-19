@@ -62,11 +62,63 @@ module cva5
         
         output logic abacus_dcache_request,
         output logic abacus_dcache_hit,
-        output logic abacus_dcache_line_fill_in_progress
+        output logic abacus_dcache_line_fill_in_progress,
+
+        output logic abacus_branch_misprediction,
+        output logic abacus_ras_misprediction,
+
+        //Issue stage stall determination
+        output logic abacus_issue_no_instruction_stat,
+        output logic abacus_issue_no_id_stat,
+        output logic abacus_issue_flush_stat,
+        output logic abacus_unit_busy_stat,
+        output logic abacus_issue_operands_not_ready_stat,
+        output logic abacus_issue_hold_stat,
+        output logic abacus_issue_multi_source_stat
     );
 
     assign abacus_instruction_issued = instruction_issued;
     assign abacus_instruction = issue.instruction;
+
+    logic[MAX_NUM_UNITS-1:0] abacus_unit_needed_issue_stage;
+    logic[REGFILE_READ_PORTS-1:0] abacus_operand_ready;
+    logic abacus_issue_hold;
+    
+    logic[MAX_NUM_UNITS-1:0] unit_ready;
+
+    generate for (genvar i=0; i < MAX_NUM_UNITS; i++) 
+        assign unit_ready[i] = unit_issue[i].ready;
+    endgenerate
+
+    logic base_no_instruction_stall;
+    logic base_no_id_sub_stall;
+    logic base_flush_sub_stall;
+    logic base_unit_busy_stall;
+    logic base_operands_stall;
+    logic base_hold_stall;
+
+    logic [3:0] stall_source_count; 
+    logic single_source_issue_stall;
+
+    assign stall_source_count = 4'(base_no_instruction_stall) + 4'(base_unit_busy_stall) + 4'(base_operands_stall) + 4'(base_hold_stall);
+    assign single_source_issue_stall = (stall_source_count == 1);
+
+    always_comb begin 
+        base_no_instruction_stall = ~issue.stage_valid | gc.fetch_flush;
+        base_no_id_sub_stall = (post_issue_count == 2**(LOG2_MAX_IDS));
+        base_flush_sub_stall = gc.fetch_flush;
+        base_unit_busy_stall = issue.stage_valid & ~|(abacus_unit_needed_issue_stage & unit_ready);
+        base_operands_stall = issue.stage_valid & ~(&abacus_operand_ready);
+        base_hold_stall = issue.stage_valid & abacus_issue_hold;
+
+        abacus_issue_no_instruction_stat = base_no_instruction_stall & single_source_issue_stall;
+        abacus_issue_no_id_stat = base_no_instruction_stall & base_no_id_sub_stall & single_source_issue_stall;
+        abacus_issue_flush_stat = base_no_instruction_stall & base_flush_sub_stall & single_source_issue_stall;
+        abacus_unit_busy_stat = base_unit_busy_stall & single_source_issue_stall;
+        abacus_issue_operands_not_ready_stat = base_operands_stall & single_source_issue_stall;
+        abacus_issue_hold_stat = base_hold_stall & single_source_issue_stall;
+        abacus_issue_multi_source_stat = (base_no_instruction_stall | base_unit_busy_stall | base_operands_stall | base_hold_stall) & ~single_source_issue_stall;
+    end
     
     ////////////////////////////////////////////////////
     //Connecting Signals
@@ -381,7 +433,10 @@ module cva5
         .unit_issue (unit_issue),
         .gc (gc),
         .current_privilege (current_privilege),
-        .exception (exception[PRE_ISSUE_EXCEPTION])
+        .exception (exception[PRE_ISSUE_EXCEPTION]),
+        .abacus_unit_needed_issue_stage(abacus_unit_needed_issue_stage),
+        .abacus_operand_ready(abacus_operand_ready),
+        .abacus_issue_hold(abacus_issue_hold)
     );
 
     ////////////////////////////////////////////////////
@@ -419,7 +474,9 @@ module cva5
         .issue (unit_issue[BR_ID]),
         .br_results (br_results),
         .branch_flush (branch_flush),
-        .exception (exception[BR_EXCEPTION])
+        .exception (exception[BR_EXCEPTION]),
+        .abacus_branch_misprediction(abacus_branch_misprediction),
+        .abacus_ras_misprediction(abacus_ras_misprediction)
     );
 
 

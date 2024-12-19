@@ -49,6 +49,9 @@ module branch_unit
         output branch_results_t br_results,
         output logic branch_flush,
 
+        output logic abacus_branch_misprediction,
+        output logic abacus_ras_misprediction,
+        
         exception_interface.unit exception
     );
     common_instruction_t instruction;//rs1_addr, rs2_addr, fn3, fn7, rd_addr, upper/lower opcode
@@ -239,6 +242,9 @@ module branch_unit
     assign br_results.is_call = is_call_ex;
 
     assign branch_flush = instruction_is_completing & (issue_stage.pc[31:1] != new_pc_ex[31:1]);
+
+    assign abacus_branch_misprediction = instruction_is_completing & ~is_return_ex & branch_flush;
+    assign abacus_ras_misprediction = instruction_is_completing & is_return_ex & branch_flush;
 
     ////////////////////////////////////////////////////
     //End of Implementation
